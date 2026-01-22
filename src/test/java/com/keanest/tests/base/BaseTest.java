@@ -1,45 +1,45 @@
 package com.keanest.tests.base;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 import com.keanest.framework.config.ConfigReader;
-import com.keanest.framework.config.EnvironmentConfig;
 import com.keanest.framework.driver.BrowserType;
 import com.keanest.framework.driver.DriverFactory;
 import com.keanest.framework.driver.DriverManager;
 
 public class BaseTest {
 
-    @Parameters({"env", "browser"})
+    protected Logger logger = LogManager.getLogger(this.getClass());
+
     @BeforeMethod(alwaysRun = true)
-    public void setUp(String xmlEnv, String xmlBrowser) {
+    @Parameters({"browser"})
+    public void setUp(@Optional String browserFromXml) {
 
-        // Resolve environment
-        String env = (xmlEnv != null && !xmlEnv.isEmpty())
-                ? xmlEnv
-                : ConfigReader.getRunProperty("env");
+        logger.info("Starting test execution");
 
-        // Resolve browser
-        String browser = (xmlBrowser != null && !xmlBrowser.isEmpty())
-                ? xmlBrowser
+        // 1. Resolve browser: TestNG XML > run-config.properties
+        String browserName = (browserFromXml != null && !browserFromXml.isEmpty())
+                ? browserFromXml
                 : ConfigReader.getRunProperty("browser");
 
-        BrowserType browserType =
-                BrowserType.valueOf(browser.toUpperCase());
+        BrowserType browserType = BrowserType.valueOf(browserName.toUpperCase());
 
+        // 2. Create WebDriver and bind to ThreadLocal
         DriverManager.setDriver(
                 DriverFactory.createDriver(browserType)
         );
-
-        // Open application URL
-        DriverManager.getDriver()
-                .get(EnvironmentConfig.getEnvProperty("base.url"));
     }
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
+
+        logger.info("Ending test execution");
+
         if (DriverManager.getDriver() != null) {
             DriverManager.getDriver().quit();
             DriverManager.unload();
