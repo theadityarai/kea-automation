@@ -1,5 +1,5 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
-<suite name="Sanity Suite"
+<suite name="Member Profile End-to-End Flow"
        verbose="1"
        parallel="false">
 
@@ -8,19 +8,20 @@
         <listener class-name="com.keanest.framework.reports.TestListener"/>
     </listeners>
 
-    <!-- Sanity Tests -->
-    <test name="Login Sanity Tests">
+    <test name="Login + Member Profile Flow">
 
-        <!-- Groups to run -->
+        <!-- Groups to execute -->
         <groups>
             <run>
-                <include name="sanity"/>
-                <include name="members"/>
-                
+                <!-- Smoke login -->
+                <include name="smoke"/>
+
+                <!-- Member profile happy paths -->
+                <include name="memberProfilePositive"/>
             </run>
         </groups>
 
-        <!-- Test Packages -->
+        <!-- Scan testcases package -->
         <packages>
             <package name="com.keanest.tests.testcases"/>
         </packages>
